@@ -173,14 +173,7 @@ tcpdump: listening on eth1, link-type EN10MB (Ethernet), capture size 262144 byt
 Видим что ответы `ICMP echo reply` действительно уходят с интерфейса `eth1` `router2`.
 
 Можем посмотреть таблицу маршрутизации на `router1`: `vtysh -c 'sh ip route'`
-<!--->
-<details>
-<summary>Таблица маршрутов router1</summary>
-<pre>
-bla bla bla
-</pre>
-</details>
-<---->
+
 ```bash
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
