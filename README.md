@@ -15,7 +15,7 @@
 
 * Прописывать соседей OSPF необязательно, если они подключены непосредственно (direct connect).
 
-[статья](https://habr.com/ru/company/ddosguard/blog/503826/)
+[Статья на хабре](https://habr.com/ru/company/ddosguard/blog/503826/)
 
 ### Запуск проекта
 
