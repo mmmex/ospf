@@ -1,0 +1,118 @@
+!Указание версии FRR
+frr version 8.4.2
+frr defaults traditional
+!
+!Указываем имя машины
+hostname {{ ansible_hostname }}
+log syslog informational
+no ipv6 forwarding
+service integrated-vtysh-config
+!
+{% if frr_interfaces is defined and frr_interfaces != {} %}
+{%   for iface, iface_data in frr_interfaces.items() %}
+{%     if iface_data['vrf'] is defined %}
+interface {{ iface }} vrf {{ iface_data['vrf'] }}
+{%     else %}
+interface {{ iface }}
+{%     endif %}
+{%     if iface_data['description'] is defined %}
+  description {{ iface_data['description'] }}
+{%     endif %}
+{%     if iface_data['ip'] is defined %}
+{%       if iface_data['ip'] is string %}
+  ip address {{ iface_data['ip'] }}
+{%       elif iface_data['ip'] is iterable %}
+{%         for ip in iface_data['ip'] if ip|length %}
+  ip address {{ ip }}
+{%         endfor %}
+{%       endif %}
+{%     endif %}
+{%     if iface_data['ipv6'] is defined %}
+{%       if iface_data['ipv6'] is string %}
+  ipv6 address {{ iface_data['ipv6'] }}
+{%       elif iface_data['ipv6'] is iterable %}
+{%         for ipv6 in iface_data['ipv6'] if ipv6|length %}
+  ipv6 address {{ ipv6 }}
+{%         endfor %}
+{%       endif %}
+{%     endif %}
+{%     if iface_data['auth'] is defined %}
+  ip ospf authentication message-digest
+  ip ospf message-digest-key {{ iface_data['auth']['id'] }} md5 {{ iface_data['auth']['key'] }}
+{%     endif %}
+{%     if iface_data['other'] is defined %}
+{%       for option in iface_data['other'] %}
+  {{ option }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+{% endif %}
+!
+{% if frr_daemons['ospfd'] %}
+router ospf
+{%   if frr_router_id is defined %}
+  router-id {{ frr_router_id }}
+{%   endif %}
+{% endif %}
+!
+{% if ( (frr_daemons['ospfd'] is defined) and
+        (frr_ospf is defined or frr_ospf_vrf_enabled is defined) ) %}
+{# define VRF list to iterate over it #}
+{%   set ospf_vrf_list = [] %}
+{#   when 'frr_ospf_vrf_enabled' is defined, 'ospf_vrf_list' is populated by defined vrf instances #}
+{#   when 'frr_ospf' is also defined, 'default' vrf is added to list #}
+{%   if frr_ospf_vrf_enabled is defined and frr_ospf_vrf_enabled != {} %}
+{%     for vrf in frr_ospf_vrf_enabled %}
+{{       ospf_vrf_list.append(vrf) or '!' }}
+{%     endfor  %}
+{%   endif %}
+{%   if frr_ospf is defined and frr_ospf != {} %}
+{{     ospf_vrf_list.append("default") }}
+{%   endif %}
+{%     for vrf in ospf_vrf_list %}
+{%       if vrf == "default" %}
+router ospf
+{%       else %}
+router ospf vrf {{ vrf }}
+{%         set frr_ospf = frr_ospf_vrf_enabled[vrf] %}
+{%       endif %}
+{%     if frr_router_id is defined and vrf == "default" %}
+  router-id {{ frr_router_id }}
+{%     endif %}
+{%     if frr_ospf['areas'] is defined %}
+{%       for area, area_data in frr_ospf['areas'].items() %}
+{%         for area_network in area_data['networks'] %}
+  network {{ area_network }} area {{ area }}
+{%         endfor %}
+{%         if area_data['auth'] is defined %}
+  area {{ area }} authentication message-digest
+{%         endif %}
+{%         if area_data['type'] is defined %}
+  area {{ area }} {{ area_data['type'] }}
+{%         endif %}
+{%       endfor %}
+{%     endif %}
+{%     if frr_ospf['log_adjacency_changes'] | default(False) %}
+  log-adjacency-changes
+{%     endif %}
+{%     if frr_ospf['passive_interfaces'] is defined %}
+{%       for passive_int in frr_ospf['passive_interfaces'] %}
+  passive-interface {{ passive_int }}
+{%       endfor %}
+{%     endif %}
+{%     if frr_ospf['redistribute'] is defined %}
+{%       for redist_protocol in frr_ospf['redistribute'] %}
+  redistribute {{ redist_protocol }}
+{%       endfor %}
+{%     endif %}
+{%     if frr_ospf['distribute_list'] is defined %}
+{%       for acl in frr_ospf['distribute_list'] %}
+  distribute-list {{ acl.name }} {{ acl.dir }} {{ acl.protocol }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+{% endif %}
+!
+!Указываем адрес log-файла
+log file /var/log/frr/frr.log
+!default-information originate always

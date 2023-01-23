@@ -1,0 +1,36 @@
+---
+- name: Install epel-release repo
+  ansible.builtin.yum:
+    name: epel-release
+    state: present
+
+- name: Install base tools
+  ansible.builtin.yum:
+    name:
+    #- vim
+    - traceroute
+    - tcpdump
+    - net-tools
+    #- mc
+    state: present
+    update_cache: true
+
+- name: Add FRR repo
+  ansible.builtin.yum:
+    name: https://rpm.frrouting.org/repo/frr-stable-repo-1-0.el7.noarch.rpm
+    state: present
+    validate_certs: no
+
+# Обновляем пакеты и устанавливаем FRR
+- name: Install FRR packages
+  ansible.builtin.yum:
+    name:
+      - frr
+      - frr-pythontools
+    state: present
+    update_cache: true
+
+- name: Update glibc-common
+  ansible.builtin.yum:
+    name: glibc-common
+    update_only: yes

@@ -1,0 +1,91 @@
+---
+- name: OSPF
+  # Указываем имя хоста или группу, которые будем настраивать
+  hosts: all
+  # Параметр выполнения модулей от root-пользователя
+  become: yes
+  # Указание файла с дополнителыми переменными (понадобится при добавлении темплейтов)
+  vars_files:
+  - defaults/main.yml
+  tasks:
+  # Обновление пакетов и установка vim, traceroute, tcpdump, net-tools
+  - name: Install base tools
+    ansible.builtin.yum:
+      name:
+      #- vim
+      - traceroute
+      - tcpdump
+      - net-tools
+      #- mc
+      state: present
+      update_cache: true
+        
+  # Настройка OSPF
+
+  # Отключаем UFW и удаляем его из автозагрузки
+  #- name: Disable ufw service
+    # service:
+    #   name: ufw
+    #   state: stopped
+    #   enabled: false
+
+  # Добавляем gpg-key репозитория
+  # - name: Add gpg frrouting.org
+  #   apt_key:
+  #     url: "https://deb.frrouting.org/frr/keys.asc"
+  #     state: present
+
+  # Добавляем репозиторий https://deb.frrouting.org/frr (lsb_release -s -c)
+  - name: Add frr repo
+    ansible.builtin.yum:
+      name: https://rpm.frrouting.org/repo/frr-stable-repo-1-0.el7.noarch.rpm
+      state: present
+
+  # Обновляем пакеты и устанавливаем FRR
+  - name: Install FRR packages
+    ansible.builtin.yum:
+      name:
+      - frr
+      - frr-pythontools
+      state: present
+      update_cache: true
+
+  # Включаем маршрутизацию транзитных пакетов
+  - name: Set up forward packages across routers
+    ansible.builtin.sysctl:
+      name: net.ipv4.conf.all.forwarding
+      value: '1'
+      sysctl_set: yes
+      state: present
+      reload: yes
+
+
+  # Копируем файл daemons на хосты, указываем владельца и права
+  # - name: Base set up OSPF
+  #   template:
+  #     src: daemons
+  #     dest: /etc/frr/daemons
+  #     owner: frr
+  #     group: frr
+  #     mode: 0640
+  - name: Setup daemon frr
+    ansible.builtin.replace:
+      path: /etc/frr/daemons
+      regexp: '^ospfd=no$'
+      replace: 'ospfd=yes'
+
+  # Копируем файл frr.conf на хосты, указываем владельца и права
+  - name: Set up OSPF
+    ansible.builtin.template:
+      src: frr.conf.j2
+      dest: /etc/frr/frr.conf
+      owner: frr
+      group: frr
+      mode: 0640
+
+  # Перезапускам FRR и добавляем в автозагрузку
+  - name: Restart FRR
+    ansible.builtin.service:
+      name: frr
+      state: restarted
+      enabled: true

@@ -1,0 +1,30 @@
+---
+#router_id_enable: false
+frr_daemons:
+  bgpd: false
+  ospfd: true
+  ospf6d: false
+  ripd: false
+  ripngd: false
+  isisd: false
+  pimd: false
+  pim6d: false
+  ldpd: false
+  nhrpd: false
+  eigrpd: false
+  babeld: false
+  sharpd: false
+  pbrd: false
+  bfdd: false
+  fabricd: false
+  vrrpd: false
+  pathd: false
+
+frr_interfaces: {}
+
+frr_logging: syslog
+
+frr_ospf: {}
+
+# reloads frr upon config changes
+frr_reload: true
