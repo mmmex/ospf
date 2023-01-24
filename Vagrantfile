@@ -31,31 +31,8 @@ Vagrant.configure("2") do |config|
       
     config.vm.define boxname do |box|
 
-        box.vm.box = boxconfig[:box_name]
-        box.vm.host_name = boxconfig[:vm_name]
-		#box.vm.host_name = boxname.to_s
-        
-        # if boxconfig[:vm_name] == "router3"
-        #     box.vm.provision "ansible" do |ansible|
-        #         ansible.playbook = "ansible/provision.yml"
-        #         ansible.inventory_path = "ansible/hosts"
-        #         ansible.host_key_checking = "false"
-        #         ansible.limit = "all"
-        #     end
-        # end
-
-        # case boxname.to_s
-		    
-        #   when "router3"
-		#     box.vm.provision "ansible" do |ansible|
-		# 		ansible.playbook = "ansible/provision.yml"
-		# 		ansible.inventory_path = "ansible/hosts"
-		# 		ansible.host_key_checking = "false"
-		# 		ansible.limit = "all"
-		# 	end
-		    
-        # end
-		
+      box.vm.box = boxconfig[:box_name]
+      box.vm.host_name = boxconfig[:vm_name]
 	    boxconfig[:net].each do |ipconf|
 		  box.vm.network "private_network", ipconf
  	    end

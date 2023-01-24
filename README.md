@@ -21,7 +21,8 @@
 
 1. Клонируем репозиторий: `git clone https://github.com/mmmex/ospf.git`
 2. Переходим в каталог: `cd ospf`
-3. Запускаем проект: `vagrant up`
+3. Переходим на ветку `vlan`: `git switch vlan`
+4. Запускаем проект: `vagrant up`
 
 Будут подняты 3 ВМ: `router1`, `router2` и `router3` с установленным FRR версии 8.4.2
 
