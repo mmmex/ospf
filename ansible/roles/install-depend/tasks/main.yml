@@ -15,6 +15,16 @@
     state: present
     update_cache: true
 
+- name: Install dependencies for nmcli
+  ansible.builtin.yum:
+    name:
+    - NetworkManager-glib
+    - nm-connection-editor.x86_64
+    - libsemanage-python
+    - policycoreutils-python
+    state: present
+    update_cache: true
+
 - name: Add FRR repo
   ansible.builtin.yum:
     name: https://rpm.frrouting.org/repo/frr-stable-repo-1-0.el7.noarch.rpm

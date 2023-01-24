@@ -1,0 +1,41 @@
+---
+#### https://stackoverflow.com/questions/42167747/how-to-loop-over-this-dictionary-in-ansible
+ - set_fact:
+     vlan_iface_list_of_dicts: |
+       {% set res = [] -%}
+       {% for iface, iface_data in vlan_iface.items() -%}
+         {% set ignored = res.extend([{'vlan_name':iface, 'vlan_id':iface_data['vlanid'], 'vlan_dev':iface_data['vlandev'], 'vlan_ipv4':iface_data['vlanipv4']}]) -%}
+       {%- endfor %}
+       {{ res }}
+
+#  - name: Debug
+#    debug: var=vlan_iface_list_of_dicts
+
+#  - name: Interfaces and attrib
+#    debug:
+#      msg: "Interface={{ item.vlan_name }}, Vlan_id={{ item.vlan_id }}, Vlan_dev={{ item.vlan_dev }}"
+#    with_items: "{{ vlan_iface_list_of_dicts }}"
+####
+
+####
+# - name: Show info
+#   debug:
+#     msg: "Id: {{ vlan_iface[item]['vlanid'] }} - info: {{ vlan_iface[item]['vlandev'] }} - item: {{ vlan_iface[item] }}"
+#   with_items: "{{ vlan_iface.keys() | list }}"
+####
+
+# - name: Debug
+#   debug:
+#     msg: "Key={{ item.key }} value={{ item.value }}"
+# #  loop: "{{ vlan_iface | dict2items | subelements('value') }}"
+#   with_dict: "{{ vlan_iface }}"
+
+ - name: Setup vlans
+   ansible.builtin.nmcli:
+     type: vlan
+     conn_name: "{{ item.vlan_name }}"
+     ip4: "{{ item.vlan_ipv4 }}"
+     vlanid: "{{ item.vlan_id }}"
+     vlandev: "{{ item.vlan_dev }}"
+     state: present
+   with_items: "{{ vlan_iface_list_of_dicts }}"

@@ -15,9 +15,19 @@
   hosts: router1
   become: true
   roles:
+    - role: vlan-setup
+      vlan_iface:
+        vlan10:
+          vlanipv4: 10.0.12.1/30
+          vlanid: 10
+          vlandev: eth1
+        vlan11:
+          vlanipv4: 10.0.10.1/30
+          vlanid: 11
+          vlandev: eth1
     - role: frr-instance
       frr_interfaces:
-        eth1:
+        vlan11:
           ip: 10.0.10.1/30
           description: r1-r2
           other:
@@ -25,7 +35,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth2:
+        vlan10:
           ip: 10.0.12.1/30
           description: r1-r3
           other:
@@ -33,7 +43,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth3:
+        eth2:
           ip: 192.168.10.1/24
           description: net_router1
           other:
@@ -53,9 +63,17 @@
   hosts: router2
   become: true
   roles:
+    - role: vlan-setup
+      vlan_iface:
+        vlan11:
+          vlanid: 11
+          vlandev: eth1
+        vlan12:
+          vlanid: 12
+          vlandev: eth1
     - role: frr-instance
       frr_interfaces:
-        eth1:
+        vlan11:
           ip: 10.0.10.2/30
           description: r1-r2
           other:
@@ -63,7 +81,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth2:
+        vlan12:
           ip: 10.0.11.2/30
           description: r2-r3
           other:
@@ -71,7 +89,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth3:
+        eth2:
           ip: 192.168.20.1/24
           description: net_router2
           other:
@@ -91,9 +109,17 @@
   hosts: router3
   become: true
   roles:
+    - role: vlan-setup
+      vlan_iface:
+        vlan10:
+          vlanid: 10
+          vlandev: eth1
+        vlan12:
+          vlanid: 12
+          vlandev: eth1
     - role: frr-instance
       frr_interfaces:
-        eth1:
+        vlan12:
           ip: 10.0.11.1/30
           description: r2-r3
           other:
@@ -101,7 +127,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth2:
+        vlan10:
           ip: 10.0.12.2/30
           description: r1-r3
           other:
@@ -109,7 +135,7 @@
             - "ip ospf cost 45"
             - "ip ospf hello-interval 10"
             - "ip ospf dead-interval 30"
-        eth3:
+        eth2:
           ip: 192.168.30.1/24
           description: net_router3
           other:
