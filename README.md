@@ -28,7 +28,7 @@
 
 **Топология сети:**
 
-![image](https://raw.githubusercontent.com/mmmex/ospf/master/OSPF_with_vlan-diagram.png)
+![image](https://raw.githubusercontent.com/mmmex/ospf/vlan/OSPF_with_vlan-diagram.png)
 
 **Таблицы хостов:**
 
