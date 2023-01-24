@@ -66,9 +66,11 @@
     - role: vlan-setup
       vlan_iface:
         vlan11:
+          vlanipv4: 10.0.10.2/30
           vlanid: 11
           vlandev: eth1
         vlan12:
+          vlanipv4: 10.0.11.2/30
           vlanid: 12
           vlandev: eth1
     - role: frr-instance
@@ -112,9 +114,11 @@
     - role: vlan-setup
       vlan_iface:
         vlan10:
+          vlanipv4: 10.0.12.2/30
           vlanid: 10
           vlandev: eth1
         vlan12:
+          vlanipv4: 10.0.11.1/30
           vlanid: 12
           vlandev: eth1
     - role: frr-instance
